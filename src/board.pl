@@ -1,8 +1,12 @@
 % define start letter code of the board
 start_letter(65).
 
-% set up size of board
-board_size(5).
+% get size of the board
+board_size(Board, N) :-
+    nth0(0, Board, Row),
+    length(Board, N),
+    length(Row, N).
+
 
 % Predicate to initialize a board of size N
 initialize_board(N, Board) :-
@@ -24,43 +28,47 @@ create_row(N, [' ' | Rest]) :-
     create_row(N1, Rest).
 
 % Predicate to display the board in a friendly way
+% display_board(+Board)
 display_board(Board) :-
     nl,
-    board_size(N),
+    board_size(Board, N),
     write('  '),
     display_numbers(1,N),
-    display_rows(Board),
+    display_rows(Board, N),
     nl.
 
 % Predicate to display the rows of the board
-display_rows(Board) :-
+% display_rows(+Board, +N)
+display_rows(Board, N) :-
     FisrtLetterCode is 65,
-    display_rows_helper(FisrtLetterCode, Board).
-display_rows_helper(_, []) :-
-    board_size(N),
+    display_rows_helper(FisrtLetterCode, Board, N).
+display_rows_helper(_, [], N) :-
     display_horizontal_line(N).
-display_rows_helper(LetterCode, [Row | Rest]) :-
-    board_size(N),
+display_rows_helper(LetterCode, [Row | Rest], N) :-
     display_horizontal_line(N),
     put_code(LetterCode),
-    display_row(Row),
+    display_row(Row, N),
     NewLetterCode is LetterCode + 1,
-    display_rows_helper(NewLetterCode, Rest).
+    display_rows_helper(NewLetterCode, Rest, N).
 
 % Predicate to display a single row
-display_row([]) :-
+% display_row(+Row, +N)
+display_row([], _) :-
     write(' |'), nl.
-display_row([Cell | Rest]) :-
+display_row([Cell | Rest], N) :-
     write(' | '),
     write(Cell),
     display_row(Rest).
 
 % Predicate to display a horizontal line
+% display_horizontal_line(+N)
 display_horizontal_line(N) :-
     write('  '),
     display_h_line(N),
     write('*'), nl.
 
+% Predicate to display a horizontal line
+% display_h_line(+N)
 display_h_line(0).
 display_h_line(N) :-
     N > 0,
@@ -69,6 +77,7 @@ display_h_line(N) :-
     display_h_line(N1).
 
 % Display header of the board with numbers
+% display_numbers(+N0, +N)
 display_numbers(N, N) :-
     write('  '),
     write(N),
@@ -82,9 +91,9 @@ display_numbers(N0, N) :-
     display_numbers(N1, N).
 
 
-% test to print the board
-test_board_1 :-
-    board_size(N),
+% test to print the board with size N
+% test_board_1(+N)
+test_board_1(N) :-
     initialize_board(N, Board),
     write('Board: '), write(Board), nl,
     display_board(Board).
