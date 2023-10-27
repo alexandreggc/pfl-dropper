@@ -1,5 +1,6 @@
 % define start letter code of the board
 start_letter(65).
+max_board_size(9).
 
 % get size of the board
 board_size(Board, N) :-
@@ -7,9 +8,28 @@ board_size(Board, N) :-
     length(Board, N),
     length(Row, N).
 
+% Predicate to get the element at position [X, Y] on the board
+board_get_element(Board, X, Y, Element) :-
+    nth0(Y, Board, Row),
+    nth0(X, Row, Element).
+
+% Predicate to get the adjacent pieces of a position
+board_get_adjacent(Board, X, Y, ListOfAdjacent) :-
+    board_size(Board, N),
+    get_adjacent_positions(N, [X, Y], ListOfAdjacentPositions),
+    board_get_elements(Board, ListOfAdjacentPositions, ListOfAdjacent).
+
+% Predicate to get elements from positions on the board
+board_get_elements(_, [], []).
+board_get_elements(Board, [[X1, Y1] | Rest], [Element | RestElements]) :-
+    board_get_element(Board, X1, Y1, Element),
+    board_get_elements(Board, Rest, RestElements).
+
 
 % Predicate to initialize a board of size N
 initialize_board(N, Board) :-
+    max_board_size(MaxN),
+    N =< MaxN, N > 0,
     create_list_of_rows(N, N, Board).
 
 % Predicate to create a list of N rows, each containing N spaces
