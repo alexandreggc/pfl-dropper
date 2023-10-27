@@ -92,8 +92,8 @@ display_numbers(N0, N) :-
 
 
 % test to print the board with size N
-% test_board_1(+N)
-test_board_1(N) :-
+% test_board(+N)
+test_board(N) :-
     initialize_board(N, Board),
     write('Board: '), write(Board), nl,
     display_board(Board).
