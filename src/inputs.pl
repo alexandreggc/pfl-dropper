@@ -1,14 +1,16 @@
 % Predicate to read a move from the terminal and parse it using get_code and peek_char
-read_and_parse_move(Source, Destination) :-
+read_move(Source, Destination) :-
     write('Enter your move (e.g., A1-B2): '),
-    read_str(Move),
-    parse_move(Move, Source, Destination),
+    (
+        read_str(Move), parse_move(Move, Source, Destination) ->
+        true, !;
+        (write('Invalid input!'), nl, read_move(Source, Destination))
+    ),
     (
         check_move(SourceXCode, SourceYCode, DestXCode, DestYCode) -> 
-        true ;
-        (write('Invalid move!')), nl, read_and_parse_move(Source, Destination)
-    ),
-    parse_move(Move, Source, Destination).
+        true, !;
+        (write('Invalid move!'), nl, read_move(Source, Destination))
+    ).
 
 % Predicate to parse a move in the format "A1-B2" and extract source and destination positions
 parse_move(RawMove, Source, Destination) :-
