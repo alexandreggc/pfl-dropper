@@ -36,7 +36,7 @@ display_board(Board) :-
 display_rows(Board) :-
     FisrtLetterCode is 65,
     display_rows_helper(FisrtLetterCode, Board).
-display_rows_helper(LetterCode, []) :-
+display_rows_helper(_, []) :-
     board_size(N),
     display_horizontal_line(N).
 display_rows_helper(LetterCode, [Row | Rest]) :-
@@ -63,6 +63,7 @@ display_horizontal_line(N) :-
 
 display_h_line(0).
 display_h_line(N) :-
+    N > 0,
     write('*---'),
     N1 is N - 1,
     display_h_line(N1).
