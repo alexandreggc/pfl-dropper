@@ -44,3 +44,16 @@ delta(1, 1).
 delta(-1, 1).
 delta(1, -1).
 delta(-1, -1).
+
+% Predicate to replace an element at a specific position in a list
+replace_element(List, Index, NewElement, ResultList) :-
+    replace_element(List, Index, NewElement, 0, ResultList).
+
+% Base case: Reached the specified index, replace the element
+replace_element([_|Rest], Index, NewElement, Index, [NewElement|Rest]).
+% Recursive case: Continue searching for the specified index
+replace_element([X|Rest], Index, NewElement, CurrentIndex, [X|NewRest]) :-
+    CurrentIndex < Index,
+    NextIndex is CurrentIndex + 1,
+    replace_element(Rest, Index, NewElement, NextIndex, NewRest).
+

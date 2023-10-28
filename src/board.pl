@@ -8,21 +8,27 @@ board_size(Board, N) :-
     length(Board, N),
     length(Row, N).
 
+% Predicate to set the element at position [X, Y] on the board
+board_set_element(Board, [X, Y], Element, NewBoard) :-
+    nth0(Y, Board, Row),
+    replace_element(Row, X, Element, NewRow),
+    replace_element(Board, Y, NewRow, NewBoard).
+
 % Predicate to get the element at position [X, Y] on the board
-board_get_element(Board, X, Y, Element) :-
+board_get_element(Board, [X, Y], Element) :-
     nth0(Y, Board, Row),
     nth0(X, Row, Element).
 
 % Predicate to get the adjacent pieces of a position
-board_get_adjacent(Board, X, Y, ListOfAdjacent) :-
+board_get_adjacent(Board, [X, Y], ListOfAdjacent) :-
     board_size(Board, N),
     get_adjacent_positions(N, [X, Y], ListOfAdjacentPositions),
     board_get_elements(Board, ListOfAdjacentPositions, ListOfAdjacent).
 
 % Predicate to get elements from positions on the board
 board_get_elements(_, [], []).
-board_get_elements(Board, [[X1, Y1] | Rest], [Element | RestElements]) :-
-    board_get_element(Board, X1, Y1, Element),
+board_get_elements(Board, [[X1, Y1] | Rest], [[Element, [X1, Y1]] | RestElements]) :-
+    board_get_element(Board, [X1, Y1], Element),
     board_get_elements(Board, Rest, RestElements).
 
 
@@ -78,7 +84,7 @@ display_row([], _) :-
 display_row([Cell | Rest], N) :-
     write(' | '),
     write(Cell),
-    display_row(Rest).
+    display_row(Rest, N).
 
 % Predicate to display a horizontal line
 % display_horizontal_line(+N)
