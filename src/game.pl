@@ -1,6 +1,16 @@
 player_black('X').
 player_white('O').
 
+% Change player given a current player
+% change_player(+Player, -NewPlayer)
+change_player(Player, NewPlayer) :-
+    player_black(Player),
+    player_white(NewPlayer).
+change_player(Player, NewPlayer) :-
+    player_white(Player),
+    player_black(NewPlayer).
+
+
 % initial_state(+Size, -GameState)
 % A GameState is a list of 4 elements:
 % 1. Board
@@ -10,7 +20,8 @@ player_white('O').
 initial_state(Size, GameState) :-
     player_black(Player),
     initialize_board(Size, Board),
-    GameState = [Board, Player, [], []].
+    valid_moves([Board, Player, [], []], Player, FreeMoves),
+    GameState = [Board, Player, FreeMoves, []].
     
 % display_game(+GameState)
 display_game(GameState) :-
@@ -18,19 +29,30 @@ display_game(GameState) :-
     display_board(Board).
 
 % move(+GameState, +Move, -NewGameState)
+move(GameState, Move, NewGameState) :-
+    GameState = [Board, Player, FM, DM],
+    board_set_element(Board, Move, Player, NewBoard),
+    change_player(Player, NewPlayer),
+    TempGameState = [NewBoard, NewPlayer, [], []],
+    valid_moves(TempGameState, NewPlayer, FreeMoves),
+    NewGameState = [NewBoard, NewPlayer, FreeMoves, []].
+
 
 % valid_moves(+GameState, +Player, -ListOfMoves).
 valid_moves(GameState, Player, ListOfMoves) :-
     GameState = [Board, _, _, _],
     findall([X, Y], valid_free_move(Board, [X, Y]), ListOfMoves).
 
-% valid_free_move(+Board, +Position).
+% Get all available free moves given a Board 
+% valid_free_move(+Board, -Position).
 valid_free_move(Board, [X, Y]) :-
     board_get_element(Board, [X, Y], Element),
     Element == ' ',
     board_get_adjacent(Board, [X, Y], ListOfAdjacent),
     check_all_spaces(ListOfAdjacent).
 
+% Check if all positions are free positions
+% check_all_spaces(+ListAdjacent)
 check_all_spaces(ListOfAdjacent) :-
     length(ListOfAdjacent, NumberOfAdjacent),
     check_all_spaces(ListOfAdjacent, NumberOfAdjacent).
@@ -78,5 +100,26 @@ test_game2(N) :-
     valid_moves(NewGameState, Player, NewListOfMoves),
     write('Valid moves: '),
     write(NewListOfMoves).
+
+test_game3(N, Move) :-
+    initial_state(N, GameState),
+    GameState = [Board, Player, FM, DM],
+    display_game(GameState),
+    % print writes
+    write('List of free moves: '),
+    write(FM),nl,
+    write('Player: '),
+    write(Player),nl,
+
+    move(GameState, Move, NewGameState),
+
+    NewGameState = [NewBoard, NewPlayer, NewFM, NewDM],
+    display_game(NewGameState),
+    % print writes
+    write('Free moves: '),
+    write(NewFM),nl,
+    write('Player: '),
+    write(NewPlayer),nl.
+
 
 
