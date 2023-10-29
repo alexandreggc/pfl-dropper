@@ -20,7 +20,7 @@ change_player(Player, NewPlayer) :-
 initial_state(Size, GameState) :-
     player_black(Player),
     initialize_board(Size, Board),
-    valid_free_moves([Board, Player, [], []], Player, FreeMoves),
+    valid_free_moves([Board, Player, [], []], FreeMoves),
     valid_drop_moves([Board, Player, [], []], DropMoves),
     GameState = [Board, Player, FreeMoves, DropMoves].
     
@@ -30,17 +30,30 @@ display_game(GameState) :-
     display_board(Board).
 
 % move(+GameState, +Move, -NewGameState)
-move(GameState, Move, NewGameState) :-
+move_free(GameState, Move, NewGameState) :-
     GameState = [Board, Player, FM, DM],
     board_set_element(Board, Move, Player, NewBoard),
     change_player(Player, NewPlayer),
     TempGameState = [NewBoard, NewPlayer, [], []],
-    valid_free_moves(TempGameState, NewPlayer, FreeMoves),
-    NewGameState = [NewBoard, NewPlayer, FreeMoves, []].
+    valid_free_moves(TempGameState, FreeMoves),
+    valid_drop_moves(TempGameState, DropMoves),
+    NewGameState = [NewBoard, NewPlayer, FreeMoves, DropMoves].
+
+% move_drop(+GameState, +Move, -NewGameState)
+move_drop(GameState, Move, NewGameState) :-
+    GameState = [Board, Player, FM, DM],
+    Move = [[X0, Y0], [X1, Y1]],
+    board_set_element(Board, [X0, Y0], Player, NewBoard),
+    change_player(Player, NewPlayer),
+    board_set_element(NewBoard, [X1, Y1], NewPlayer, NewBoard),
+    TempGameState = [NewBoard, NewPlayer, [], []],
+    valid_free_moves(TempGameState, FreeMoves),
+    valid_drop_moves(TempGameState, DropMoves),
+    NewGameState = [NewBoard, NewPlayer, FreeMoves, DropMoves].
 
 % Get all available free moves given a Board 
-% valid_free_moves(+GameState, +Player, -ListOfMoves).
-valid_free_moves(GameState, Player, ListOfMoves) :-
+% valid_free_moves(+GameState, -ListOfMoves).
+valid_free_moves(GameState, ListOfMoves) :-
     GameState = [Board, _, _, _],
     findall([X, Y], valid_free_move(Board, [X, Y]), ListOfMoves).
 
@@ -86,7 +99,7 @@ test_game(N) :-
     initial_state(N, GameState),
     display_game(GameState),
     GameState = [Board, Player, _, _],
-    valid_free_moves(GameState, Player, ListOfMoves),
+    valid_free_moves(GameState, ListOfMoves),
     write('Valid moves: '),
     write(ListOfMoves).
 
@@ -99,7 +112,7 @@ test_game2(N) :-
     initial_state(N, GameState),
     display_game(GameState),
     GameState = [Board, Player, FM, DM],
-    valid_free_moves(GameState, Player, ListOfMoves),
+    valid_free_moves(GameState, ListOfMoves),
     write('Valid moves: '),
     write(ListOfMoves),
     
@@ -111,7 +124,7 @@ test_game2(N) :-
     write('Game State: '), 
     write(NewGameState),nl,
 
-    valid_free_moves(NewGameState, Player, NewListOfMoves),
+    valid_free_moves(NewGameState, NewListOfMoves),
     write('Valid moves: '),
     write(NewListOfMoves).
 
@@ -125,7 +138,7 @@ test_game3(N, Move) :-
     write('Player: '),
     write(Player),nl,
 
-    move(GameState, Move, NewGameState),
+    move_free(GameState, Move, NewGameState),
 
     NewGameState = [NewBoard, NewPlayer, NewFM, NewDM],
     display_game(NewGameState),
@@ -147,7 +160,7 @@ test_game4(N, Move) :-
     write('Drop moves: '),
     write(DM),nl,
 
-    move(GameState, Move, NewGameState),
+    move_free(GameState, Move, NewGameState),
 
     NewGameState = [NewBoard, NewPlayer, NewFM, NewDM],
     display_game(NewGameState),
@@ -156,7 +169,6 @@ test_game4(N, Move) :-
     write(NewPlayer),nl,
     write('Free moves: '),
     write(NewFM),nl,
-    valid_drop_moves(NewGameState, L),
     write('Drop moves: '),
-    write(L),nl.
+    write(NewDM),nl.
     
