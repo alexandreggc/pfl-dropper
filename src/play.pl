@@ -5,3 +5,7 @@
 :- consult('utils.pl').
 :- consult('inputs.pl').
 :- consult('game.pl').
+
+% Main function
+play :-
+    game_start(5, GameState).
