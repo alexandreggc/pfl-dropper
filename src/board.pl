@@ -1,5 +1,6 @@
 % define start letter code of the board
 start_letter(65).
+start_number(49).
 max_board_size(9).
 
 % get size of the board
@@ -59,23 +60,24 @@ display_board(Board) :-
     nl,
     board_size(Board, N),
     write('  '),
-    display_numbers(1,N),
+    start_letter(StartLetterCode),
+    display_letters(1,N, StartLetterCode),
     display_rows(Board, N),
     nl.
 
 % Predicate to display the rows of the board
 % display_rows(+Board, +N)
 display_rows(Board, N) :-
-    FisrtLetterCode is 65,
-    display_rows_helper(FisrtLetterCode, Board, N).
+    start_number(StartNumberCode),
+    display_rows_helper(StartNumberCode, Board, N).
 display_rows_helper(_, [], N) :-
     display_horizontal_line(N).
-display_rows_helper(LetterCode, [Row | Rest], N) :-
+display_rows_helper(NumberCode, [Row | Rest], N) :-
     display_horizontal_line(N),
-    put_code(LetterCode),
+    put_code(NumberCode),
     display_row(Row, N),
-    NewLetterCode is LetterCode + 1,
-    display_rows_helper(NewLetterCode, Rest, N).
+    NewNumberCode is NumberCode + 1,
+    display_rows_helper(NewNumberCode, Rest, N).
 
 % Predicate to display a single row
 % display_row(+Row, +N)
@@ -102,19 +104,20 @@ display_h_line(N) :-
     N1 is N - 1,
     display_h_line(N1).
 
-% Display header of the board with numbers
-% display_numbers(+N0, +N)
-display_numbers(N, N) :-
+% Display header of the board with letters
+% display_letters(+N0, +N, +StartLetterCode)
+display_letters(N, N, LetterCode) :-
     write('  '),
-    write(N),
+    put_code(LetterCode),
     nl.
-display_numbers(N0, N) :-
+display_letters(N0, N, LetterCode) :-
     N0 < N,
     write('  '),
-    write(N0),
+    put_code(LetterCode),
     write(' '),
     N1 is N0 + 1,
-    display_numbers(N1, N).
+    NewLetterCode is LetterCode + 1,
+    display_letters(N1, N, NewLetterCode).
 
 
 % test to print the board with size N
