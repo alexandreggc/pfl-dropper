@@ -57,3 +57,10 @@ replace_element([X|Rest], Index, NewElement, CurrentIndex, [X|NewRest]) :-
     NextIndex is CurrentIndex + 1,
     replace_element(Rest, Index, NewElement, NextIndex, NewRest).
 
+% Base case: The sum of an empty list is 0.
+sum_list([], 0).
+
+% Recursive case: Calculate the sum of the head and the sum of the rest of the list.
+sum_list([Head|Tail], Sum) :-
+    sum_list(Tail, TailSum),
+    Sum is Head + TailSum.
