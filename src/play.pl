@@ -1,4 +1,5 @@
 :- use_module(library(lists)).
+:- use_module(library(between)).
 
 :- consult('board.pl').
 :- consult('menu.pl').
@@ -10,4 +11,4 @@
 
 % Main function
 play :-
-    game_start(4, GameState).
+    game_start(3, GameState).

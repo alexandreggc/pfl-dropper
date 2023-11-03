@@ -64,3 +64,6 @@ sum_list([], 0).
 sum_list([Head|Tail], Sum) :-
     sum_list(Tail, TailSum),
     Sum is Head + TailSum.
+
+max_list([X], X).
+max_list([H|T], Max) :- max_list(T, Max1), Max is max(H, Max1).

@@ -45,14 +45,16 @@ game_over(GameState, Winner) :-
     GameState = [Board, _, _, _],
     game_display(GameState),
     write('Game Over!'),nl,
-    largest_cluster_size(Board, 'X', LargestXClusterSize),
+    largest_groups(Board, LargestXClusterSize, LargestOClusterSize),
     write('Largest X cluster size: '), write(LargestXClusterSize), nl,
-    largest_cluster_size(Board, 'O', LargestOClusterSize),
     write('Largest O cluster size: '), write(LargestOClusterSize), nl,
     (LargestXClusterSize > LargestOClusterSize ->
         Winner = 'X';
         Winner = 'O'
-    ),nl,nl,
+    ),
+    (LargestOClusterSize == LargestXClusterSize ->
+        Winner = 'Draw'),
+    nl,nl,
     write('Winner: '), write(Winner), nl.
 
 % game_free_move(+GameState, -NewBoard)
