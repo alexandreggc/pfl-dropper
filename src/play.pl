@@ -10,4 +10,4 @@
 
 % Main function
 play :-
-    game_start(8, GameState).
+    game_start(4, GameState).

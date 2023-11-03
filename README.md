@@ -1,6 +1,142 @@
-### Dropper Game in Prolog
+# Dropper Game
 
-**Helpful links about the game:**
+**Group Dropper_3:**
+- Alexandre Guimarães Gomes Correia, up202007042
+- Diogo Alexandre da Silva Santos, upXXXXXXXXX
+
+
+## Installation and Execution
+
+To run the game it is only necessary to open the SICStus Prolog interpreter and consult the file play.pl, then the game menu will open on the terminal and you can play the game.
+
+## Description of the game
+
+The Dropper is an abstract board game for two players. The game is typically played on a 8x8 board, but can be played on boards of different size, in our implementation it can be played on NxN boards.
+
+- Player 1 starts by placing one stone anywhere on the empty board.
+- Player 2, in their turn, has two moves to make:
+
+    - **Drop Move:** This is where Player 2 takes one of Player 1's stones and replaces it with one of their own. They can do this by putting their stone in the place of Player 1's stone and moving that player's stone to an empty spot adjacent to it, either diagonally or orthogonally.
+
+    - **Free Move:** After the Drop move, Player 2 gets to place their own stone in a free spot on the board. A free spot is one that doesn't have any stones adjacent to it in any direction, either diagonally or orthogonally.
+
+Players continue taking turns, using the Drop-Free protocol, until they can no longer make Free moves. When Free moves are no longer possible, they proceed only with Drop moves. After all placement possibilities are exhausted, the game calculates the sizes of the stone groups for each player. A **group** is a set of stones of the same color that are orthogonally adjacent to each other. The player with the largest group wins. In case of a tie, the size of the second largest group is considered, and so on.
+
+For more information about the game, you can check the official links about the game:
 
 - https://andreachia.wordpress.com/2023/04/01/dropper/
 - https://boardgamegeek.com/boardgame/384171/dropper
+
+## Game Logic
+
+### Internal Game State Representation
+
+The game state is represented by a list the cointains the Board, the Player, the Valid Free moves and the valid Drop moves. The Board is a list of lists of characters. These characters can be an empty space, a 'X' for the case os black pieces and a 'O' for the case of white pieces. The Player is a character that can be 'X' or 'O' depending on the player that is playing. The Valid Free moves and the valid Drop moves are lists of lists of the corresponding moves. In the case of the Free move it is represented only by a list of coordinates of a spot on the board. In the case of the Drop move it is represented by a list of coordinates of the spot where the piece will be placed and the coordinates of the spot where the piece will be moved.
+
+**Examples of games states:** <br>
+(GameState = [Board, Player, FreeMoves, DropMoves])
+
+- Initial game state:
+
+````prolog
+GameState = [ 
+    % Board
+    [[' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ']],
+    % Player
+    'X',
+    % FreeMoves
+    [[0,0],[1,0],[2,0],[3,0],[0,1],[1,1],[2,1],[3,1],[0,2],[1,2],[2,2],[3,2],[0,3],[1,3],[2,3],[3,3]],
+    % DropMoves
+    []
+]   
+````
+ - Mid-game game state:
+
+````prolog
+GameState = [
+    % Board
+    [[' ', 'X', ' ', 'X'],
+    ['X', 'O', ' ', ' '],
+    [' ', 'O', 'O', ' '],
+    [' ', ' ', 'X', ' ']],
+    % Player
+    'O',
+    % FreeMoves
+    [],
+    % DropMoves
+    [[[1,0],[2,0]],[[1,0],[0,0]],[[1,0],[2,1]],[[3,0],[3,1]],[[3,0],[2,0]],[[3,0],[2,1]],[[0,1],[0,2]],[[0,1],[0,0]],[[2,3],[3,3]],[[2,3],[1,3]],[[2,3],[3,2]]]
+]
+````
+
+
+### Game State Visualization
+
+The game state is visualized can be visualized by the predicate game_display/1. This predicate receives a game state and prints the board with the corresponding pieces and the valid moves for the current player.
+
+![](game_display.png "Game Display")
+
+To display the game state is used a predicate called display_board/1 that receives a board and prints it on the terminal. This predicate prints the first row with the references letters of the board, then it prints the actual board row by row with the the references numbers of the left side of the board. This prints are made using only *write/1* and *put_code/1* predicates.
+
+
+### Move Validation and Execution
+
+The inputs in the termninal are made character by character, when the user input the newline character the terminal stops reading the input. Then the game processes the input given and checks if it is according to the move format it is supose to be.
+
+In case of a Free move the input must have 2 characters: the first one must be a letter (a-zA-Z) and the second one must be a number (1-9), **for example 'A2'**.
+
+In case of a Drop move the input must have 5 characters: the first one must be a letter (a-zA-Z), the second one must be a number (1-9), the third one must be a the separator character '-', the fourth character must be letter (a-zA-Z) and the fifth one must be a number (1-9), **for example 'A2-B3'**.
+
+The move input and validation is made by the predicates in the *inputs.pl* file.
+
+After the move is validated it is executed by the predicate *move_free/3* or *move_drop/3*. This predicate receives the game state, the move to be executed and the new game state. This new game state will be used in the next game step. 
+
+### List of Valid Moves
+
+For each board the valid free moves and the valid drop moves are calculated and stored in the game state of that board. This lists of valid moves are used to detect if the player can make the move he input he desires or not.
+
+To following predicates are used to get all the possible moves of the valid free moves and the valid drop moves:
+
+
+````prolog
+% valid_free_move(+Board, -Position).
+valid_free_move(Board, [X, Y]) :-
+    board_get_element(Board, [X, Y], Element),
+    Element == ' ',
+    board_get_adjacent(Board, [X, Y], ListOfAdjacent),
+    check_all_spaces(ListOfAdjacent).
+````
+
+````prolog
+% valid_drop_move(+Board, +Player, -Move).
+valid_drop_move(Board, Player, [[X0, Y0], [X1, Y1]]) :-
+    board_get_element(Board, [X0, Y0], Element),
+    change_player(Player, Opponent),
+    Element == Opponent,
+    board_get_adjacent(Board, [X0, Y0], ListOfAdjacent),
+    member([' ', [X1, Y1]], ListOfAdjacent).
+````
+
+The predicate *board_get_adjacent/3* receives a board and a position and returns a list of lists that have an element of the board and the corresponding position which is a list of two coordinates. For example, if the board is a 4x4 board and the position is [2,3] the list of adjacent elements will be the following:
+
+````prolog
+Board = [[' ', 'X', ' ', 'X'],
+        ['X', 'O', ' ', ' '],
+        [' ', 'O', 'O', ' '],
+        [' ', ' ', 'X', ' ']]
+Position = [2,3]
+ListOfAdjacent = [[' ', [1,3]], ['O', [1,2]], ['O', [2,2]], [' ', [3,2]], [' ', [3,3]]]
+````
+
+The predicate *check_all_spaces/1* just receives a list of adjacent positions and checks if all the elements of those positions are empty spaces.
+
+### End of Game
+### Game State Evaluation
+### Computer Plays
+
+## Conclusions
+
+
+## Bibliography
