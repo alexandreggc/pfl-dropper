@@ -3,19 +3,12 @@
 % Define directions for the flood-fill algorithm
 directions([0-1, 1-0, 0-(-1), -1-0]).
 
-% Check if coordinates are inside the board's bounds
-in_bounds(X, Y) :- X >= 0, X < 4, Y >= 0, Y < 4.
-
-% Retrieve the element at position (X, Y) in the matrix
-matrix_element(Board, X, Y, Element) :-
-    nth0(X, Board, Row),
-    nth0(Y, Row, Element).
-
 % Flood-fill from a given position
 flood_fill(Board, X, Y, Piece, Size) :-
-    in_bounds(X, Y),                    % Check bounds
+    board_size(Board, N),                   % Get board size
+    valid_position(N, X, Y),
     \+ visited(X, Y),                   % Check if not visited
-    matrix_element(Board, X, Y, Piece), % Check if the piece matches
+    board_get_element(Board, [X, Y], Piece),
     asserta(visited(X, Y)),             % Mark as visited
     directions(Dirs),                   
     flood_fill_neighbours(Board, X, Y, Dirs, Piece, Sizes), % Flood-fill neighbours
@@ -46,9 +39,10 @@ largest_groups(Board, LargestX, LargestO) :-
 
 % Test predicate
 test :-
-    Board = [['X', 'X', 'X', 'X'],
-             ['X', 'X', 'O', 'O'],
-             ['X', 'O', 'O', 'X'],
-             ['X', 'O', 'X', 'O']],
+    Board = [['X', 'X', 'X', 'X', 'O'],
+             ['X', 'X', 'O', 'O', 'O'],
+             ['X', 'O', 'X', 'X', 'O'],
+             ['X', 'O', 'O', 'X', 'O'],
+             ['X', 'O', 'X', 'O', 'O']],
     largest_groups(Board, LargestX, LargestO),
     format("Largest X group: ~d~nLargest O group: ~d", [LargestX, LargestO]).
