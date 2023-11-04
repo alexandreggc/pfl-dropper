@@ -53,9 +53,10 @@ game_winner(GameState, Winner) :-
         Winner = 'O'
     ),
     (LargestOClusterSize == LargestXClusterSize ->
-        Winner = 'Draw'),
-    nl,nl,
-    write('Winner: '), write(Winner), nl.
+        Winner = 'Draw', write('Draw!'), write(Winner), nl;
+        write('Winner: '), write(Winner), nl
+    ).
+    
 
 % game_free_move(+GameState, -NewBoard)
 game_free_move(GameState, NewBoard) :-
