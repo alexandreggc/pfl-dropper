@@ -26,7 +26,8 @@ flood_fill_neighbours(_, _, _, [], _, []).
 
 % Find the largest group on the board for a given piece
 find_largest_group(Board, Piece, LargestSize) :-
-    findall(Size, (between(0, 3, X), between(0, 3, Y), 
+    board_size(Board, N), N1 is N - 1,                             % Get board size
+    findall(Size, (between(0, N1, X), between(0, N1, Y), 
                    flood_fill(Board, X, Y, Piece, Size)), Sizes), % Find all sizes
     max_list(Sizes, LargestSize).                                   % Find the max size
 
