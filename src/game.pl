@@ -5,8 +5,8 @@ game_start(N, GameState) :-
 game_loop(GameState) :-
     game_display(GameState),
     game_step(GameState, NewGameState),
-    (check_game_over(GameState) ->
-        game_over(GameState, Winner), !;
+    (game_over(GameState) ->
+        game_winner(GameState, Winner), !;
         game_loop(NewGameState)
     ).
 
@@ -36,12 +36,12 @@ game_step(GameState, NewGameState) :-
     valid_drop_moves([NewBoard, NewPlayer, [], []], NewDropMoves),
     NewGameState = [NewBoard, NewPlayer, NewFreeMoves, NewDropMoves].
 
-check_game_over(GameState) :-
+game_over(GameState) :-
     GameState = [_, _, FreeMoves, DropMoves],
     FreeMoves == [], DropMoves == [].
 
-% game_over(+GameState, -Winner).
-game_over(GameState, Winner) :-
+% game_winner(+GameState, -Winner).
+game_winner(GameState, Winner) :-
     GameState = [Board, _, _, _],
     game_display(GameState),
     write('Game Over!'),nl,

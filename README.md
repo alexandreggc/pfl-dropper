@@ -133,6 +133,43 @@ ListOfAdjacent = [[' ', [1,3]], ['O', [1,2]], ['O', [2,2]], [' ', [3,2]], [' ', 
 The predicate *check_all_spaces/1* just receives a list of adjacent positions and checks if all the elements of those positions are empty spaces.
 
 ### End of Game
+
+The end game is verified by the predicate *game_over/1*. This predicate receives a game state and checks if the game is over or not. The game is over when the player can't make any more moves, either Free or Drop moves. This predicate checks if the list of valid free moves and the list of valid drop moves are empty. If both lists are empty the game is over.
+
+Therefore, if the game is over, the predicate *game_winner/2* is called. This predicate receives a game state and returns the winner of the game. The predicate calculates the sizes of the stone groups for each player and returns the player with the largest group.
+
+This calculation is performed using a **flood-fill algorithm** on the board. The algorithm is implemented in the predicate *flood_fill/5*. This predicate takes as input a board, a position, a player, a list of visited positions, and the size of the group. The predicate checks if the position is valid, if it has not been visited, and if it matches the player's character. If all these conditions are true, the predicate calls itself recursively for all adjacent positions from the current position. The predicate also increments the size of the group for each valid position. The predicate stops when there are no more valid positions to visit, and the size of the group is returned in the last call of the predicate.
+
+
+````prolog
+% Flood-fill from a given position
+% flood_fill(+Board, +X, +Y, +Piece, -Size)
+flood_fill(Board, X, Y, Piece, Size) :-
+    board_size(Board, N),
+    valid_position(N, X, Y),
+    \+ visited(X, Y),
+    board_get_element(Board, [X, Y], Piece),
+    asserta(visited(X, Y)),
+    directions(Dirs),                   
+    flood_fill_neighbours(Board, X, Y, Dirs, Piece, Sizes),
+    sum_list(Sizes, NeighboursSize),
+    Size is 1 + NeighboursSize.
+
+flood_fill(_, _, _, _, 0).
+
+% Flood-fill neighbouring cells
+% flood_fill_neighbours(+Board, +X, +Y, +Dirs, +Piece, -Sizes)
+flood_fill_neighbours(Board, X, Y, [DX-DY|RestDirs], Piece, [NeighbourSize|Sizes]) :-
+    NewX is X + DX, NewY is Y + DY,
+    flood_fill(Board, NewX, NewY, Piece, NeighbourSize),
+    flood_fill_neighbours(Board, X, Y, RestDirs, Piece, Sizes).
+flood_fill_neighbours(_, _, _, [], _, []).
+````
+
+This algorithm is executed for all possible positions on the board, creating a list of the sizes of all the groups for each player. Then, we determine the largest group and identify the player who possesses that group.
+
+
+
 ### Game State Evaluation
 ### Computer Plays
 

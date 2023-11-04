@@ -4,34 +4,38 @@
 directions([0-1, 1-0, 0-(-1), -1-0]).
 
 % Flood-fill from a given position
+% flood_fill(+Board, +X, +Y, +Piece, -Size)
 flood_fill(Board, X, Y, Piece, Size) :-
-    board_size(Board, N),                   % Get board size
+    board_size(Board, N),
     valid_position(N, X, Y),
-    \+ visited(X, Y),                   % Check if not visited
+    \+ visited(X, Y),
     board_get_element(Board, [X, Y], Piece),
-    asserta(visited(X, Y)),             % Mark as visited
+    asserta(visited(X, Y)),
     directions(Dirs),                   
-    flood_fill_neighbours(Board, X, Y, Dirs, Piece, Sizes), % Flood-fill neighbours
-    sum_list(Sizes, NeighboursSize),                        
-    Size is 1 + NeighboursSize.                              % Size including this piece
+    flood_fill_neighbours(Board, X, Y, Dirs, Piece, Sizes),
+    sum_list(Sizes, NeighboursSize),
+    Size is 1 + NeighboursSize.
 
 flood_fill(_, _, _, _, 0).
 
 % Flood-fill neighbouring cells
+% flood_fill_neighbours(+Board, +X, +Y, +Dirs, +Piece, -Sizes)
 flood_fill_neighbours(Board, X, Y, [DX-DY|RestDirs], Piece, [NeighbourSize|Sizes]) :-
     NewX is X + DX, NewY is Y + DY,
-    flood_fill(Board, NewX, NewY, Piece, NeighbourSize), % Recursive call
+    flood_fill(Board, NewX, NewY, Piece, NeighbourSize),
     flood_fill_neighbours(Board, X, Y, RestDirs, Piece, Sizes).
 flood_fill_neighbours(_, _, _, [], _, []).
 
 % Find the largest group on the board for a given piece
+% find_largest_group(+Board, +Piece, -LargestSize)
 find_largest_group(Board, Piece, LargestSize) :-
-    board_size(Board, N), N1 is N - 1,                             % Get board size
+    board_size(Board, N), N1 is N - 1,
     findall(Size, (between(0, N1, X), between(0, N1, Y), 
-                   flood_fill(Board, X, Y, Piece, Size)), Sizes), % Find all sizes
-    max_list(Sizes, LargestSize).                                   % Find the max size
+                   flood_fill(Board, X, Y, Piece, Size)), Sizes),
+    max_list(Sizes, LargestSize).
 
 % Main predicate to find the largest group for 'X' and 'O'
+% largest_groups(+Board, -LargestX, -LargestO)
 largest_groups(Board, LargestX, LargestO) :-
     retractall(visited(_,_)), % Clear visited cells
     find_largest_group(Board, 'X', LargestX),
