@@ -1,24 +1,36 @@
-game_start(N, GameState) :-
+game_start(N) :-
     initial_state(N, GameState),
     game_loop(GameState).
+
+game_start_ai(N, Level, AIPlayer) :-
+    initial_state(N, GameState),
+    game_loop_ai(GameState, Level, AIPlayer).
 
 game_loop(GameState) :-
     game_display(GameState),
     game_step(GameState, NewGameState),
-    (game_over(GameState) ->
-        game_winner(GameState, Winner), !;
+    (game_over(NewGameState) ->
+        game_winner(NewGameState, Winner), !;
         game_loop(NewGameState)
+    ).
+
+game_loop_ai(GameState, Level, AIPlayer) :-
+    game_display(GameState),
+    game_step_ai(GameState, Level, AIPlayer, NewGameState),
+    (game_over(NewGameState) ->
+        game_winner(NewGameState, Winner), !;
+        game_loop_ai(NewGameState, Level, AIPlayer)
     ).
 
 % game_display(+GameState)
 game_display(GameState) :-
     GameState = [Board, Player, FreeMove, DropMoves],
     display_board(Board),
-    write('Player: '), write(Player), nl,
-    write('Free Moves: '), nl,
-    write(FreeMove), nl,
-    write('Drop Moves: '), nl,
-    write(DropMoves), nl.
+    write('Player: '), write(Player), nl.
+    % write('Free Moves: '), nl,
+    % write(FreeMove), nl,
+    % write('Drop Moves: '), nl,
+    % write(DropMoves), nl.
 
 
 % game_step(+GameState, -NewGameState)
@@ -35,6 +47,34 @@ game_step(GameState, NewGameState) :-
     valid_free_moves([NewBoard, NewPlayer, [], []], NewFreeMoves),
     valid_drop_moves([NewBoard, NewPlayer, [], []], NewDropMoves),
     NewGameState = [NewBoard, NewPlayer, NewFreeMoves, NewDropMoves].
+
+game_step_ai(GameState, Level, AIPlayer, NewGameState) :-
+    GameState = [Board, Player, FreeMoves, DropMoves],
+    (Player \== AIPlayer ->
+        % Human Player
+        game_step(GameState, NewGameState);
+        % AI Player
+        length(FreeMoves, FreeMovesLength),
+        (FreeMovesLength \== 0 ->
+            % If there are free moves available, choose one free and one drop
+            choose_free_move(GameState, Level, FreeMove),
+            move_free(GameState, FreeMove, TempBoard),
+            TempGameState = [TempBoard, Player, [], DropMoves],
+            choose_drop_move(TempGameState, Level, DropMove),
+            move_drop(TempGameState, DropMove, NewBoard),
+            change_player(Player, NewPlayer),
+            valid_drop_moves([NewBoard, NewPlayer, [], []], NewDropMoves),
+            valid_free_moves([NewBoard, NewPlayer, [], []], NewFreeMoves),
+            NewGameState = [NewBoard, NewPlayer, NewFreeMoves, NewDropMoves];
+            
+            % If there are no free moves available, choose one drop move
+            choose_drop_move(GameState, Level, DropMove),
+            move_drop(GameState, DropMove, NewBoard),
+            change_player(Player, NewPlayer),
+            valid_drop_moves([NewBoard, NewPlayer, [], []], NewDropMoves),
+            NewGameState = [NewBoard, NewPlayer, [], NewDropMoves]
+        )
+    ).
 
 game_over(GameState) :-
     GameState = [_, _, FreeMoves, DropMoves],
