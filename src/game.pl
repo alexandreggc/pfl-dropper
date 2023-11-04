@@ -55,13 +55,17 @@ game_step_ai(GameState, Level, AIPlayer, NewGameState) :-
         game_step(GameState, NewGameState);
         % AI Player
         length(FreeMoves, FreeMovesLength),
-        (FreeMovesLength \== 0 ->
+        length(DropMoves, DropMovesLength),
+        (FreeMovesLength \== 0->
             % If there are free moves available, choose one free and one drop
             choose_free_move(GameState, Level, FreeMove),
             move_free(GameState, FreeMove, TempBoard),
             TempGameState = [TempBoard, Player, [], DropMoves],
-            choose_drop_move(TempGameState, Level, DropMove),
-            move_drop(TempGameState, DropMove, NewBoard),
+            (DropMovesLength \== 0 ->
+                choose_drop_move(TempGameState, Level, DropMove),
+                move_drop(TempGameState, DropMove, NewBoard);
+                NewBoard = TempBoard
+            ),
             change_player(Player, NewPlayer),
             valid_drop_moves([NewBoard, NewPlayer, [], []], NewDropMoves),
             valid_free_moves([NewBoard, NewPlayer, [], []], NewFreeMoves),
@@ -86,14 +90,14 @@ game_winner(GameState, Winner) :-
     game_display(GameState),
     write('Game Over!'),nl,
     largest_groups(Board, LargestXClusterSize, LargestOClusterSize),
-    write('Largest X cluster size: '), write(LargestXClusterSize), nl,
-    write('Largest O cluster size: '), write(LargestOClusterSize), nl,
+    write('Largest X group size: '), write(LargestXClusterSize), nl,
+    write('Largest O group size: '), write(LargestOClusterSize), nl,
     (LargestXClusterSize > LargestOClusterSize ->
         Winner = 'X';
         Winner = 'O'
     ),
     (LargestOClusterSize == LargestXClusterSize ->
-        Winner = 'Draw', write('Draw!'), write(Winner), nl;
+        write('Draw!'), nl;
         write('Winner: '), write(Winner), nl
     ).
     
