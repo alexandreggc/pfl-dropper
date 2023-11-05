@@ -169,11 +169,11 @@ flood_fill_neighbours(_, _, _, [], _, []).
 This algorithm is executed for all possible positions on the board, creating a list of the sizes of all the groups for each player. Then, we determine the largest group and identify the player who possesses that group.
 
 
-
 ### Game State Evaluation
 ### Computer Plays
 
 ## Conclusions
 
+The that the moves are inputed could be improve so that we could get a better code structure on the of player vs player.
 
 ## Bibliography

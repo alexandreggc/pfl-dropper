@@ -1,3 +1,14 @@
+code_number(48,0).
+code_number(49,1).
+code_number(50,2).
+code_number(51,3).
+code_number(52,4).
+code_number(53,5).
+code_number(54,6).
+code_number(55,7).
+code_number(56,8).
+code_number(57,9).
+
 read_free_move(FreeMove) :-
     write('Enter Free move (e.g., A1): '),
     (
@@ -48,4 +59,52 @@ parse_drop_move(RawString, DropMove) :-
 wait_for_enter :-
     write('Press Enter to continue...'),
     put_code(10),get_code(_),
+    skip_line.
+
+% read_number(+LowerBound,+UpperBound,-Number)
+%used in menus to read inputs between the Lower and Upper Bounds
+read_number(LowerBound,UpperBound,Number) :-
+    format('| Choose an Option (~d-~d) - ', [LowerBound, UpperBound]),
+    get_code(NumberASCII),
+    peek_char(Char),
+    Char == '\n',
+    code_number(NumberASCII, Number),
+    Number =< UpperBound, Number >= LowerBound, skip_line.
+% If the input is invalid
+read_number(LowerBound, UpperBound, Number):-
+    write('Not a valid number, try again\n'), skip_line,
+    read_number(LowerBound, UpperBound, Number).
+
+read_board_size(BoardSize) :-
+    write('| Choose the board size (1-9): '),
+    get_code(BoardSizeASCII),
+    peek_char(Char),
+    Char == '\n',
+    code_number(BoardSizeASCII, BoardSize),
+    BoardSize =< 9, BoardSize >= 1, skip_line.
+
+read_board_size(BoardSize) :-
+    write('Not a valid number, try again\n'), skip_line,
+    read_board_size(BoardSize).
+
+read_ai_level(AILevel) :-
+    write('| Choose the AI level (1-2): '),
+    get_code(AILevelASCII),
+    peek_char(Char),
+    Char == '\n',
+    code_number(AILevelASCII, AILevel),
+    AILevel =< 2, AILevel >= 1, skip_line.
+
+read_ai_level(AILevel) :-
+    write('Not a valid number, try again\n'), skip_line,
+    read_ai_level(AILevel).
+
+read_ai_player(AIPlayer) :-
+    write('| Choose the AI player to start (1-yes/2-no): '),
+    get_code(AIPlayerASCII),
+    peek_char(Char),
+    Char == '\n',
+    code_number(AIPlayerASCII, AIPlayerNum),
+    AIPlayerNum =< 2, AIPlayerNum >= 1,
+    (AIPlayerNum == 1 -> AIPlayer = 'X'; AIPlayer = 'O'),
     skip_line.

@@ -41,7 +41,7 @@ menu_bottom_line :-
 % menu/0
 % Displays the menu
 menu:-
-    menu_header_format('MAIN MENU'),
+    menu_header_format('DROPPER GAME'),
     menu_empty_line,
     menu_sec_header_format('Option', 'Details'),
     menu_empty_line,
@@ -53,7 +53,7 @@ menu:-
     menu_option_format(0, 'EXIT'),
     menu_empty_line,
     menu_bottom_line,
-    % read_number(0, 4, Number),
+    read_number(0, 4, Number),
     menu_option(Number).
 
 
@@ -67,11 +67,16 @@ menu_option(0):-
 
 % Player vs Player
 menu_option(1):-
-    write('Player vs Player'),
-    clear, pp_menu(1).
+    write('Player vs Player'), nl,
+    read_board_size(BoardSize),
+    game_start(BoardSize).
 
 menu_option(2):-
-    write('Player vs Computer').
+    write('Player vs Computer'), nl,
+    read_board_size(BoardSize),
+    read_ai_level(AILevel),
+    read_ai_player(AIPlayer),
+    game_start_ai(BoardSize, AILevel, AIPlayer).
 
 menu_option(3):-
     write('Computer vs Computer').
@@ -114,13 +119,3 @@ menu_option(4):-
     menu_empty_line,
     menu_bottom_line,
     menu.
-
-
-
-% Starting Game
-pp_menu(1):-
-    initial(1,GameState),
-    assert(player(1,'Human')),
-    assert(player(2,'Human')),
-    start_game(GameState).
-   % menu.
