@@ -48,7 +48,8 @@ GameState = [
     % Player
     'X',
     % FreeMoves
-    [[0,0],[1,0],[2,0],[3,0],[0,1],[1,1],[2,1],[3,1],[0,2],[1,2],[2,2],[3,2],[0,3],[1,3],[2,3],[3,3]],
+    [[0,0],[1,0],[2,0],[3,0],[0,1],[1,1],[2,1],[3,1],
+    [0,2],[1,2],[2,2],[3,2],[0,3],[1,3],[2,3],[3,3]],
     % DropMoves
     []
 ]   
@@ -67,7 +68,10 @@ GameState = [
     % FreeMoves
     [],
     % DropMoves
-    [[[1,0],[2,0]],[[1,0],[0,0]],[[1,0],[2,1]],[[3,0],[3,1]],[[3,0],[2,0]],[[3,0],[2,1]],[[0,1],[0,2]],[[0,1],[0,0]],[[2,3],[3,3]],[[2,3],[1,3]],[[2,3],[3,2]]]
+    [[[1,0],[2,0]],[[1,0],[0,0]],[[1,0],[2,1]],
+    [[3,0],[3,1]],[[3,0],[2,0]],[[3,0],[2,1]],
+    [[0,1],[0,2]],[[0,1],[0,0]],[[2,3],[3,3]],
+    [[2,3],[1,3]],[[2,3],[3,2]]]
 ]
 ````
 
@@ -132,7 +136,8 @@ Board = [[' ', 'X', ' ', 'X'],
         [' ', 'O', 'O', ' '],
         [' ', ' ', 'X', ' ']]
 Position = [2,3]
-ListOfAdjacent = [[' ', [1,3]], ['O', [1,2]], ['O', [2,2]], [' ', [3,2]], [' ', [3,3]]]
+ListOfAdjacent = [[' ', [1,3]], ['O', [1,2]], ['O', [2,2]],
+                  [' ', [3,2]], [' ', [3,3]]]
 ````
 
 The predicate *check_all_spaces/1* just receives a list of adjacent positions and checks if all the elements of those positions are empty spaces.
@@ -164,7 +169,8 @@ flood_fill(_, _, _, _, 0).
 
 % Flood-fill neighbouring cells
 % flood_fill_neighbours(+Board, +X, +Y, +Dirs, +Piece, -Sizes)
-flood_fill_neighbours(Board, X, Y, [DX-DY|RestDirs], Piece, [NeighbourSize|Sizes]) :-
+flood_fill_neighbours(Board, X, Y, [DX-DY|RestDirs], Piece,
+                                    [NeighbourSize|Sizes]) :-
     NewX is X + DX, NewY is Y + DY,
     flood_fill(Board, NewX, NewY, Piece, NeighbourSize),
     flood_fill_neighbours(Board, X, Y, RestDirs, Piece, Sizes).
