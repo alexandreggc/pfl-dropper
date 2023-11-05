@@ -1,7 +1,7 @@
 player_black('X').
 player_white('O').
 
-/ Change player given a current player /
+/* Change player given a current player */
 %change_player(+Player, -NewPlayer)
 change_player(Player, NewPlayer) :-
     player_black(Player),
@@ -12,11 +12,11 @@ change_player(Player, NewPlayer) :-
     player_black(NewPlayer).
 
 %initial_state(+Size, -GameState)
-/ A GameState is a list of 4 elements:
+/* A GameState is a list of 4 elements:
   1. Board
   2. Player
   3. List of free moves available for the current player
-  4. List of drop moves available for the current player /
+  4. List of drop moves available for the current player */
 initial_state(Size, GameState) :-
     player_black(Player),
     initialize_board(Size, Board),
@@ -37,7 +37,7 @@ move_drop(GameState, Move, NewBoard) :-
     change_player(Player, Opponent),
     board_set_element(TempBoard, [X1, Y1], Opponent, NewBoard).
 
-/ Get all available free moves given a Board /
+/* Get all available free moves given a Board */
 %valid_free_moves(+GameState, -ListOfMoves).
 valid_free_moves(GameState, ListOfMoves) :-
     GameState = [Board, _, _, _],
@@ -50,7 +50,7 @@ valid_free_move(Board, [X, Y]) :-
     board_get_adjacent(Board, [X, Y], ListOfAdjacent),
     check_all_spaces(ListOfAdjacent).
 
-/ Check if all positions are free positions /
+/* Check if all positions are free positions */
 %check_all_spaces(+ListAdjacent)
 check_all_spaces(ListOfAdjacent) :-
     length(ListOfAdjacent, NumberOfAdjacent),
@@ -63,8 +63,8 @@ check_all_spaces([[H, _]|T], N) :-
     N1 is N - 1,
     check_all_spaces(T, N1).
 
-/ Get all available drop moves given a Board 
- A drop move is represented by a list of two positions: [[X0, Y0],[X1, Y1]] /
+/* Get all available drop moves given a Board */
+/* A drop move is represented by a list of two positions: [[X0, Y0],[X1, Y1]] */
 %valid_drop_moves(+GameState, -ListOfMoves).
 valid_drop_moves(GameState, ListOfMoves) :-
     GameState = [Board, Player, _, _],
