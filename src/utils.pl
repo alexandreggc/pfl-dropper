@@ -58,7 +58,7 @@ replace_element(List, Index, NewElement, ResultList) :-
 
 /* Base case: Reached the specified index, replace the element */
 replace_element([_|Rest], Index, NewElement, Index, [NewElement|Rest]).
-/ Recursive case: Continue searching for the specified index */
+/* Recursive case: Continue searching for the specified index */
 replace_element([X|Rest], Index, NewElement, CurrentIndex, [X|NewRest]) :-
     CurrentIndex < Index,
     NextIndex is CurrentIndex + 1,

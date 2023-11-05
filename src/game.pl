@@ -3,12 +3,14 @@ game_start(N) :-
     initial_state(N, GameState),
     game_loop(GameState).
 
-%game_start_ai(+N, +Level, +AIPlayer)
-game_start_ai(N, Level, AIPlayer) :-
+game_start_AI(N, Level, AIPlayer) :-
     initial_state(N, GameState),
     game_loop_ai(GameState, Level, AIPlayer).
 
-%game_loop(+GameState)
+game_start_AIxAI(N, AIPlayerXLevel, AIPlayerOLevel) :-
+    initial_state(N, GameState),
+    game_loop_AIxAI(GameState, AIPlayerXLevel, AIPlayerOLevel).
+
 game_loop(GameState) :-
     clear,
     game_display(GameState),
@@ -29,7 +31,22 @@ game_loop_ai(GameState, Level, AIPlayer) :-
         game_loop_ai(NewGameState, Level, AIPlayer)
     ).
 
-%game_display(+GameState)
+game_loop_AIxAI(GameState, AIPlayerXLevel, AIPlayerOLevel) :-
+    clear,
+    game_display(GameState),
+    GameState = [_, Player, _, _],
+    (Player == 'X' ->
+        AILevel = AIPlayerXLevel;
+        AILevel = AIPlayerOLevel
+    ),
+    game_step_ai(GameState, AILevel, Player, NewGameState),
+    wait_for_enter,
+    (game_over(NewGameState) ->
+        game_winner(NewGameState, Winner), !;
+        game_loop_AIxAI(NewGameState, AIPlayerXLevel, AIPlayerOLevel)
+    ).
+
+% game_display(+GameState)
 game_display(GameState) :-
     GameState = [Board, Player, FreeMove, DropMoves],
     display_board(Board),
@@ -63,20 +80,16 @@ game_step_ai(GameState, Level, AIPlayer, NewGameState) :-
         % Human Player
         game_step(GameState, NewGameState);
         % AI Player
-        length(DropMoves, DropMovesLength),
-        (DropMovesLength \== 0->
-            % If there are drop moves available, choose one
-            choose_drop_move(GameState, Level, DropMove),
-            move_drop(GameState, DropMove, TempBoard),
-            valid_free_moves([TempBoard, Player, [], []], FreeMoves),
-            TempGameState = [TempBoard, Player, FreeMoves, []];
-            TempGameState = GameState
-        ),
-        length(FreeMoves, FreeMovesLength),
-        (FreeMovesLength \== 0 ->
-            choose_free_move(TempGameState, Level, FreeMove),
-            move_free(TempGameState, FreeMove, NewBoard);
-            NewBoard = TempBoard
+        choose_move(GameState, Level, DropMove-FreeMove),
+        write('AI Move: '), write(DropMove-FreeMove), nl,
+        (FreeMove \== []->
+            (DropMove \== []->
+                move_drop(GameState, DropMove, TempBoard),
+                TempGameState = [TempBoard, Player, [], []],
+                move_free(TempGameState, FreeMove, NewBoard);
+                move_free(GameState, FreeMove, NewBoard)
+            );
+            move_drop(GameState, DropMove, NewBoard)
         ),
         change_player(Player, NewPlayer),
         valid_drop_moves([NewBoard, NewPlayer, [], []], NewDropMoves),
