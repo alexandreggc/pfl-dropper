@@ -44,3 +44,8 @@ parse_drop_move(RawString, DropMove) :-
     Source = [SourceX, SourceY],
     Destination = [DestX, DestY],
     DropMove = [Source, Destination].
+
+wait_for_enter :-
+    write('Press Enter to continue...'),
+    put_code(10),get_code(_),
+    skip_line.

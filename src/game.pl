@@ -19,6 +19,7 @@ game_loop_ai(GameState, Level, AIPlayer) :-
     clear,
     game_display(GameState),
     game_step_ai(GameState, Level, AIPlayer, NewGameState),
+    wait_for_enter,
     (game_over(NewGameState) ->
         game_winner(NewGameState, Winner), !;
         game_loop_ai(NewGameState, Level, AIPlayer)
