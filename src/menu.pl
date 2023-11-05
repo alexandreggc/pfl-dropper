@@ -37,19 +37,18 @@ menu_bottom_line :-
 %menu/0
 /* Displays the menu */
 menu:-
-    menu_header_format('MAIN MENU'),
+    menu_header_format('DROPPER GAME'),
     menu_empty_line,
     menu_sec_header_format('Option', 'Details'),
     menu_empty_line,
     menu_option_format(1, 'Player vs Player'),
     menu_option_format(2, 'Player vs Computer'),
     menu_option_format(3, 'Computer vs Computer'),
-    menu_option_format(4, 'Game Intructions'),
     menu_empty_line,
     menu_option_format(0, 'EXIT'),
     menu_empty_line,
     menu_bottom_line,
-    % read_number(0, 4, Number),
+    read_number(0, 3, Number),
     menu_option(Number).
 
 %menu_option(+Option)
@@ -61,62 +60,26 @@ menu_option(0):-
 
 /* Player vs Player */
 menu_option(1):-
-    write('Player vs Player'),
-    clear, 
-    pp_menu(1).
+    write('Player vs Player'), nl,
+    read_board_size(BoardSize),
+    game_start(BoardSize),
+    wait_for_enter, clear, menu.
 
 /* Player vs Computer */
 menu_option(2):-
-    write('Player vs Computer').
+    write('Player vs Computer'), nl,
+    read_board_size(BoardSize),
+    read_ai_level(AILevel),
+    read_ai_player(AIPlayer),
+    game_start_AI(BoardSize, AILevel, AIPlayer),
+    wait_for_enter, clear, menu.
 
 /* Computer vs Computer */
 menu_option(3):-
-    write('Computer vs Computer').
+    write('Computer vs Computer'),nl,
+    read_board_size(BoardSize),
+    read_ai_level(AIPlayerXLevel, 'X'),
+    read_ai_level(AIPlayerOLevel, 'O'),
+    game_start_AIxAI(BoardSize, AIPlayerXLevel, AIPlayerOLevel),
+    wait_for_enter, clear, menu.
 
-/* Game Instructions */
-menu_option(4):-
-    clear,
-    menu_header_format('INSTRUCTIONS'),
-    menu_empty_line,
-    format('*~t~s~t~30|~t~s,~t~23+~t*~57|~n', ["Player 1", "E1,L1,R1"]),
-    format('*~t~s~t~30|~t~s,~t~23+~t*~57|~n', ["Player 2", "E2,L2,R2"]),
-    menu_empty_line,
-    menu_text_format('The goal of the game is to control 3 of the 4 Goals'),
-    menu_text_format('at the end of your turn'),
-    menu_empty_line,
-    menu_empty_line,
-    menu_text_format('-- GENERAL RULES --'),
-    menu_empty_line,
-    menu_text_format('The game starts with a square checkered board,'),
-    menu_text_format('each player controls 6 animals of 3 different types.'),
-    menu_text_format('Each piece can move as far as it can'),
-    menu_text_format('on its intended line of travel as long'),
-    menu_text_format('as its not within the square perimeter,'),
-    menu_text_format('orthogonal and diagonal,of the animal its afraid of,'),
-    menu_text_format('If your piece is next to a piece,orthogonal and diagonal'),
-    menu_text_format('that it is SCARED of it,'),
-    menu_text_format('it MUST move on your next turn'),
-    menu_text_format('You cannot move a piece next to a piece'),
-    menu_text_format('orthogonal and diagonal, that it is SCARED of.'),
-    menu_empty_line,
-    menu_empty_line,
-    menu_text_format('-- PIECES AND THEIR MOVEMENT--'),
-    menu_empty_line,
-    menu_text_format('The MOUSE can move ORTHOGONALLY,horizontal or vertical'),
-    menu_text_format('and is SCARED of the LION.'),
-    menu_text_format('The LION can move DIAGONALLY '),
-    menu_text_format('and is SCARED of the ELEPHANT.'),
-    menu_text_format('The ELEPHANT can move BOTH ORTHOGONALLY and DIAGONALLY '),
-    menu_text_format('and is SCARED of the MOUSE.'),
-    menu_empty_line,
-    menu_empty_line,
-    menu_bottom_line,
-    menu.
-
-%Starting Game
-pp_menu(1):-
-    initial(1,GameState),
-    assert(player(1,'Human')),
-    assert(player(2,'Human')),
-    start_game(GameState).
-   % menu.

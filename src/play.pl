@@ -12,4 +12,4 @@
 
 % Main function
 play :-
-    game_start(3).
+    clear, menu.

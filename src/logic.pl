@@ -78,39 +78,111 @@ valid_drop_move(Board, Player, [[X0, Y0], [X1, Y1]]) :-
     board_get_adjacent(Board, [X0, Y0], ListOfAdjacent),
     member([' ', [X1, Y1]], ListOfAdjacent).
 
-%value(+GameState, +Player, -Value)
+% valid_move(Board, Move), make_move(Board, Move, NewBoard)
+greedy_best_move(GameState, Move) :-
+    GameState = [Board, Player, FreeMoves, DropMoves],
+    (FreeMoves == [] ->
+        findall(Value-DropMove-[], (
+            member(DropMove, DropMoves),
+            value_move(GameState, DropMove-[], Value)
+        ), ListOfMoves);
+        (DropMoves \== [] -> 
+            findall(Value-DropMove-FreeMove, (
+                member(DropMove, DropMoves),
+                member(FreeMove, FreeMoves),
+                valid_move(GameState, DropMove-FreeMove),
+                value_move(GameState, DropMove-FreeMove, Value)
+            ), ListOfMoves);
+            findall(Value-[]-FreeMove, (
+                member(FreeMove, FreeMoves),
+                value_move(GameState, []-FreeMove, Value)
+            ), ListOfMoves)
+        )
+    ),
+    sort(ListOfMoves, TempSortedMoves),
+    reverse(TempSortedMoves, SortedList),
+    nth0(0, SortedList, BestValue-_-_),
+    findall(Value-DropMove-FreeMove, (
+        member(Value-DropMove-FreeMove, SortedList), Value == BestValue
+    ), BestMovesList),
+    length(BestMovesList, N),
+    random(0, N, Index),
+    nth0(Index, BestMovesList, Move).
 
-%value(+GameState, +Player, -Value)
-choose_free_move(GameState, Level, Move) :-
-    (Level == 1 ->
-        choose_free_move_level1(GameState, Move);
-        choose_free_move_level2(GameState, Move)
+valid_move(GameState, DropMove-FreeMove) :-
+    GameState = [Board, Player, _, _],
+    (DropMove \== [] ->
+        move_drop(GameState, DropMove, NewBoard),
+        (FreeMove \== [] ->
+            valid_free_move(NewBoard, FreeMove)
+        );
+        valid_free_move(Board, FreeMove)
     ).
 
-%choose_free_move_level1(+GameState, -Move)
-choose_free_move_level1(GameState, Move) :-
-    GameState = [Board, _, FreeMoves, _],
-    length(FreeMoves, NumberOfFreeMoves),
-    random(0, NumberOfFreeMoves, Index),
-    nth0(Index, FreeMoves, Move).
-
-%choose_free_move_level2(GameState, Move).
-
-%choose_drop_move(+GameState, -Move)
-choose_drop_move(GameState, Level, Move) :-
-    (Level == 1 ->
-        choose_drop_move_level1(GameState, Move);
-        choose_drop_move_level2(GameState, Move)
+value_move(GameState, DropMove-FreeMove, Value) :-
+    GameState = [Board, Player, _, _],
+    (DropMove \== [] ->
+        move_drop(GameState, DropMove, NewBoard),
+        (FreeMove \== [] ->
+            move_free([NewBoard, Player, [],[]], FreeMove, NewBoard2),
+            value([NewBoard2, Player, _, _], Player, Value);
+            value([NewBoard, Player, _, _], Player, Value)
+        );
+        move_free(GameState, FreeMove, NewBoard),
+        value([NewBoard, Player, _, _], Player, Value)
     ).
 
-%choose_drop_move_level1(+GameState, -Move)
-choose_drop_move_level1(GameState, Move) :-
-    GameState = [Board, _, _, DropMoves],
-    length(DropMoves, NumberOfDropMoves),
-    random(0, NumberOfDropMoves, Index),
-    nth0(Index, DropMoves, Move).
+te(Move):-
+    Board = [[' ', ' ', ' ', ' '],
+             [' ', ' ', ' ', ' '],
+             [' ', ' ', ' ', ' '],
+             [' ', ' ', ' ', ' ']],
+    Player = 'X',
+    valid_drop_moves([Board, Player, _, _], DropMoves),
+    valid_free_moves([Board, Player, _, _], FreeMoves),
+    GameState = [Board, Player, FreeMoves, DropMoves],
+    % (greedy_best_move(GameState, Move)).
+    valid_move(GameState, Move).
 
-%choose_drop_move_level2(GameState, Move).
+% value(+GameState, +Player, -Value)
+value(GameState, Player, Value) :-
+    GameState = [Board, _, _, _],
+    largest_groups(Board, LargestX, LargestO),
+    (Player == 'X' ->
+        Value is LargestX - LargestO;
+        Value is LargestO - LargestX
+    ).
+
+% choose_move(+GameState, +Level, -Move)
+% move is a term DropMove-FreeMove
+choose_move(GameState, Level, Move) :-
+    (Level == 1 ->
+        choose_move_level1(GameState, Move);
+        choose_move_level2(GameState, Move)
+    ).
+
+choose_move_level1(GameState, Move) :-
+    GameState = [Board, _, FreeMoves, DropMoves],
+    (FreeMoves == [] ->
+        findall(DropMove-[], (member(DropMove, DropMoves)), ListOfMoves);
+        (DropMoves \== [] -> 
+            findall(DropMove-FreeMove, (
+                member(DropMove, DropMoves),
+                member(FreeMove, FreeMoves),
+                valid_move(GameState, DropMove-FreeMove)
+            ), ListOfMoves);
+            findall([]-FreeMove, (
+                member(FreeMove, FreeMoves)
+            ), ListOfMoves)
+        )
+    ),
+    length(ListOfMoves, N),
+    random(0, N, Index),
+    nth0(Index, ListOfMoves, Move).
+
+% choose_free_move_level2(GameState, Move).
+choose_move_level2(GameState, DropMove-FreeMove) :-
+    greedy_best_move(GameState, Value-DropMove-FreeMove).
 
 
 % test_game(N) :-
