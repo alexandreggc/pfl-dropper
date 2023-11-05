@@ -13,12 +13,12 @@ To run the game it is only necessary to open the SICStus Prolog interpreter and 
 
 The Dropper is an abstract board game for two players. The game is typically played on a 8x8 board, but can be played on boards of different size, in our implementation it can be played on NxN boards.
 
-- Player 1 starts by placing one stone anywhere on the empty board.
-- Player 2, in their turn, has two moves to make:
+- Player 'X' starts by placing one stone anywhere on the empty board.
+- Player 'O', in their turn, has two moves to make:
 
-    - **Drop Move:** This is where Player 2 takes one of Player 1's stones and replaces it with one of their own. They can do this by putting their stone in the place of Player 1's stone and moving that player's stone to an empty spot adjacent to it, either diagonally or orthogonally.
+    - **Drop Move:** This is where Player 'O' takes one of Player 'X's stones and replaces it with one of their own. They can do this by putting their stone in the place of Player 'X's stone and moving that player's stone to an empty spot adjacent to it, either diagonally or orthogonally.
 
-    - **Free Move:** After the Drop move, Player 2 gets to place their own stone in a free spot on the board. A free spot is one that doesn't have any stones adjacent to it in any direction, either diagonally or orthogonally.
+    - **Free Move:** After the Drop move, Player 'O' gets to place their own stone in a free spot on the board. A free spot is one that doesn't have any stones adjacent to it in any direction, either diagonally or orthogonally.
 
 Players continue taking turns, using the Drop-Free protocol, until they can no longer make Free moves. When Free moves are no longer possible, they proceed only with Drop moves. After all placement possibilities are exhausted, the game calculates the sizes of the stone groups for each player. A **group** is a set of stones of the same color that are orthogonally adjacent to each other. The player with the largest group wins. In case of a tie, the size of the second largest group is considered, and so on.
 
@@ -170,10 +170,76 @@ This algorithm is executed for all possible positions on the board, creating a l
 
 
 ### Game State Evaluation
+
+The evaluation of a game state is done by the predicate *value/3*, which receives a game state, a player, and returns the value of that specific game state. The calculation is performed by subtracting the size of the largest group of the player from the size of the largest group of the opponent. In the predicate, we take advantage of the already implemented flood-fill algorithm to determine the size of the largest group for each player.
+
+````prolog
+% value(+GameState, +Player, -Value)
+value(GameState, Player, Value) :-
+    GameState = [Board, _, _, _],
+    largest_groups(Board, LargestX, LargestO),
+    (Player == 'X' ->
+        Value is LargestX - LargestO;
+        Value is LargestO - LargestX
+    ).
+````
+
 ### Computer Plays
+
+The game has implemented two levels of AI, as requested in the practical assignment.
+
+The first level is random play, where the computer makes a random move from the list of valid moves. These moves are calculated by the *choose_move_level1/2* predicate.
+
+The second level is greedy play, where the computer selects the move that results in the best outcome in the next game state. The best outcome is the one that leads to the largest group for the computer playing. These moves are calculated by the *choose_move_level2/2* predicate, which only makes a call to the *greedy_best_move/2* predicate.
+
+In the greedy algorithm, after obtaining all possible game states and their corresponding values in a list, it sorts the list in descending order of value and filters it to include the top moves with the highest value. Then, it randomly selects a move from that list of best moves.
+
+````prolog	
+% valid_move(Board, Move), make_move(Board, Move, NewBoard)
+greedy_best_move(GameState, Move) :-
+    GameState = [Board, Player, FreeMoves, DropMoves],
+    (FreeMoves == [] ->
+        findall(Value-DropMove-[], (
+            member(DropMove, DropMoves),
+            value_move(GameState, DropMove-[], Value)
+        ), ListOfMoves);
+        (DropMoves \== [] -> 
+            findall(Value-DropMove-FreeMove, (
+                member(DropMove, DropMoves),
+                member(FreeMove, FreeMoves),
+                valid_move(GameState, DropMove-FreeMove),
+                value_move(GameState, DropMove-FreeMove, Value)
+            ), ListOfMoves);
+            findall(Value-[]-FreeMove, (
+                member(FreeMove, FreeMoves),
+                value_move(GameState, []-FreeMove, Value)
+            ), ListOfMoves)
+        )
+    ),
+    sort(ListOfMoves, TempSortedMoves),
+    reverse(TempSortedMoves, SortedList),
+    nth0(0, SortedList, BestValue-_-_),
+    findall(Value-DropMove-FreeMove, (
+        member(Value-DropMove-FreeMove, SortedList), Value == BestValue
+    ), BestMovesList),
+    length(BestMovesList, N),
+    random(0, N, Index),
+    nth0(Index, BestMovesList, Move).
+````
+
 
 ## Conclusions
 
-The that the moves are inputed could be improve so that we could get a better code structure on the of player vs player.
+The primary challenges were related to creating the flood-fill algorithm and handling input and movement validation. Implementing the flood-fill algorithm was particularly challenging due to the complexities of Prolog. Input validation posed difficulties as well, especially in reading and validating input character by character.
+
+The method for inputting moves could be enhanced to achieve a more structured code for player vs. player interactions. Improving the game's terminal visualization would also enhance board readability and highlight valid moves.
+
+However, it's worth noting that the game is fully playable, and the computer plays are working as intended.
 
 ## Bibliography
+
+- https://andreachia.wordpress.com/2023/04/01/dropper/
+- https://boardgamegeek.com/boardgame/384171/dropper
+- https://chat.openai.com/
+- https://en.wikipedia.org/wiki/Flood_fill
+- https://sicstus.sics.se/sicstus/docs/latest4/pdf/sicstus.pdf
