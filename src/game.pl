@@ -107,9 +107,9 @@ game_winner(GameState, Winner) :-
     GameState = [Board, _, _, _],
     game_display(GameState),
     write('Game Over!'),nl,
-    largest_groups(Board, LargestXClusterSize, LargestOClusterSize),
-    write('Largest X group size: '), write(LargestXClusterSize), nl,
-    write('Largest O group size: '), write(LargestOClusterSize), nl,
+    best_groups(Board, LargestXClusterSize, LargestOClusterSize),
+    write('Best X group size: '), write(LargestXClusterSize), nl,
+    write('Best O group size: '), write(LargestOClusterSize), nl,
     (LargestXClusterSize > LargestOClusterSize ->
         Winner = 'X';
         Winner = 'O'

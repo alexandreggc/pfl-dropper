@@ -28,21 +28,50 @@ flood_fill_neighbours(Board, X, Y, [DX-DY|RestDirs], Piece, [NeighbourSize|Sizes
 
 flood_fill_neighbours(_, _, _, [], _, []).
 
-/* Find the largest group on the board for a given piece */
-%find_largest_group(+Board, +Piece, -LargestSize)
-find_largest_group(Board, Piece, LargestSize) :-
+/* Find the ordered list of groups on the board for a given piece */
+%find_ordered_groups(+Board, +Piece, -Sizes)
+find_ordered_groups(Board, Piece, Sizes) :-
     board_size(Board, N), N1 is N - 1,
-    findall(Size, (between(0, N1, X), between(0, N1, Y), 
-                   flood_fill(Board, X, Y, Piece, Size)), Sizes),
-    max_list(Sizes, LargestSize).
+    findall(Size, (between(0, N1, X), between(0, N1, Y),
+                   flood_fill(Board, X, Y, Piece, Size)), TempSizes),
+    sort(TempSizes, OrderedSizes),
+    reverse(OrderedSizes, Sizes).
 
-/* Main predicate to find the largest group for 'X' and 'O' */
-%largest_groups(+Board, -LargestX, -LargestO)
+
+
+/* Main predicate to find the largest diferent groups for 'X' and 'O' */
+%best_groups(+Board, -LargestX, -LargestO)
+best_groups(Board, LargestX, LargestO) :-
+    retractall(visited(_,_)), % Clear visited cells
+    find_ordered_groups(Board, 'X', SizesX),
+    retractall(visited(_,_)), % Clear visited cells again for 'O'
+    find_ordered_groups(Board, 'O', SizesO),
+    find_group_combination(SizesX, SizesO, LargestX, LargestO).
+
+/* Find largest group for each of the playes */
+%largest_groups(+Board, +largestX, -largestO)
 largest_groups(Board, LargestX, LargestO) :-
     retractall(visited(_,_)), % Clear visited cells
-    find_largest_group(Board, 'X', LargestX),
+    find_ordered_groups(Board, 'X', SizesX),
     retractall(visited(_,_)), % Clear visited cells again for 'O'
-    find_largest_group(Board, 'O', LargestO).
+    find_ordered_groups(Board, 'O', SizesO),
+    max_list(SizesX, LargestX),
+    max_list(SizesO, LargestO).
+
+
+/* Find best group combination taking into to consideration the draw cases*/
+%find_group_combination(+Board, +Piece, -Sizes)
+find_group_combination([SizeX | SizesX], [SizeO | SizesO], LargestX, LargestO) :-
+    ((SizesX == [0] ; SizesO == [0]) ->
+        LargestX is SizeX,
+        LargestO is SizeO;
+        (SizeO =\= SizeX ->
+            LargestX is SizeX,
+            LargestO is SizeO;
+            find_group_combination(SizesX, SizesO, LargestX, LargestO)
+        )
+    ).
+
 
 /* Test predicate */
 test :-
@@ -51,5 +80,5 @@ test :-
              ['X', 'O', 'X', 'X', 'O'],
              ['X', 'O', 'O', 'X', 'O'],
              ['X', 'O', 'X', 'O', 'O']],
-    largest_groups(Board, LargestX, LargestO),
+    best_groups(Board, LargestX, LargestO),
     format("Largest X group: ~d~nLargest O group: ~d", [LargestX, LargestO]).
