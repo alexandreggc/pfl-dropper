@@ -99,6 +99,18 @@ read_ai_level(AILevel) :-
     write('Not a valid number, try again\n'), skip_line,
     read_ai_level(AILevel).
 
+read_ai_level(AILevel, AIPlayer) :-
+    format('| Choose the AI level for player ~w (1-2): ', [AIPlayer]),
+    get_code(AILevelASCII),
+    peek_char(Char),
+    Char == '\n',
+    code_number(AILevelASCII, AILevel),
+    AILevel =< 2, AILevel >= 1, skip_line.
+
+read_ai_level(AILevel, AIPlayer) :-
+    write('Not a valid number, try again\n'), skip_line,
+    read_ai_level(AILevel, AIPlayer).
+
 read_ai_player(AIPlayer) :-
     write('| Choose the AI player to start (1-yes/2-no): '),
     get_code(AIPlayerASCII),
@@ -108,3 +120,5 @@ read_ai_player(AIPlayer) :-
     AIPlayerNum =< 2, AIPlayerNum >= 1,
     (AIPlayerNum == 1 -> AIPlayer = 'X'; AIPlayer = 'O'),
     skip_line.
+
+    

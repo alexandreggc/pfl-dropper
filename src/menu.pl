@@ -76,10 +76,14 @@ menu_option(2):-
     read_board_size(BoardSize),
     read_ai_level(AILevel),
     read_ai_player(AIPlayer),
-    game_start_ai(BoardSize, AILevel, AIPlayer).
+    game_start_AI(BoardSize, AILevel, AIPlayer).
 
 menu_option(3):-
-    write('Computer vs Computer').
+    write('Computer vs Computer'),nl,
+    read_board_size(BoardSize),
+    read_ai_level(AIPlayerXLevel, 'X'),
+    read_ai_level(AIPlayerOLevel, 'O'),
+    game_start_AIxAI(BoardSize, AIPlayerXLevel, AIPlayerOLevel).
 
 menu_option(4):-
     clear,
