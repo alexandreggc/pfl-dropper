@@ -1,22 +1,22 @@
 player_black('X').
 player_white('O').
 
-% Change player given a current player
-% change_player(+Player, -NewPlayer)
+/ Change player given a current player /
+%change_player(+Player, -NewPlayer)
 change_player(Player, NewPlayer) :-
     player_black(Player),
     player_white(NewPlayer).
+
 change_player(Player, NewPlayer) :-
     player_white(Player),
     player_black(NewPlayer).
 
-
-% initial_state(+Size, -GameState)
-% A GameState is a list of 4 elements:
-% 1. Board
-% 2. Player
-% 3. List of free moves available for the current player
-% 4. List of drop moves available for the current player
+%initial_state(+Size, -GameState)
+/ A GameState is a list of 4 elements:
+  1. Board
+  2. Player
+  3. List of free moves available for the current player
+  4. List of drop moves available for the current player /
 initial_state(Size, GameState) :-
     player_black(Player),
     initialize_board(Size, Board),
@@ -24,12 +24,12 @@ initial_state(Size, GameState) :-
     valid_drop_moves([Board, Player, [], []], DropMoves),
     GameState = [Board, Player, FreeMoves, DropMoves].
 
-% move_free(+GameState, +Move, -NewBoard)
+%move_free(+GameState, +Move, -NewBoard)
 move_free(GameState, Move, NewBoard) :-
     GameState = [Board, Player, _, _],
     board_set_element(Board, Move, Player, NewBoard).
 
-% move_drop(+GameState, +Move, -NewBoard)
+%move_drop(+GameState, +Move, -NewBoard)
 move_drop(GameState, Move, NewBoard) :-
     GameState = [Board, Player, _, _],
     Move = [[X0, Y0], [X1, Y1]],
@@ -37,37 +37,40 @@ move_drop(GameState, Move, NewBoard) :-
     change_player(Player, Opponent),
     board_set_element(TempBoard, [X1, Y1], Opponent, NewBoard).
 
-% Get all available free moves given a Board 
-% valid_free_moves(+GameState, -ListOfMoves).
+/ Get all available free moves given a Board /
+%valid_free_moves(+GameState, -ListOfMoves).
 valid_free_moves(GameState, ListOfMoves) :-
     GameState = [Board, _, _, _],
     findall([X, Y], valid_free_move(Board, [X, Y]), ListOfMoves).
 
-% valid_free_move(+Board, -Position).
+%valid_free_move(+Board, -Position).
 valid_free_move(Board, [X, Y]) :-
     board_get_element(Board, [X, Y], Element),
     Element == ' ',
     board_get_adjacent(Board, [X, Y], ListOfAdjacent),
     check_all_spaces(ListOfAdjacent).
 
-% Check if all positions are free positions
-% check_all_spaces(+ListAdjacent)
+/ Check if all positions are free positions /
+%check_all_spaces(+ListAdjacent)
 check_all_spaces(ListOfAdjacent) :-
     length(ListOfAdjacent, NumberOfAdjacent),
     check_all_spaces(ListOfAdjacent, NumberOfAdjacent).
+
+%check_all_spaces(+ListOfAdjacent, +N)
 check_all_spaces([], 0).
 check_all_spaces([[H, _]|T], N) :-
     H == ' ',
     N1 is N - 1,
     check_all_spaces(T, N1).
 
-% Get all available drop moves given a Board
-% A drop move is represented by a list of two positions: [[X0, Y0],[X1, Y1]]
-% valid_drop_moves(+GameState, -ListOfMoves).
+/ Get all available drop moves given a Board 
+ A drop move is represented by a list of two positions: [[X0, Y0],[X1, Y1]] /
+%valid_drop_moves(+GameState, -ListOfMoves).
 valid_drop_moves(GameState, ListOfMoves) :-
     GameState = [Board, Player, _, _],
     findall(DropMove, valid_drop_move(Board, Player, DropMove), ListOfMoves).
 
+%valid_drop_move(+Board, +Player, -DropMove).
 valid_drop_move(Board, Player, [[X0, Y0], [X1, Y1]]) :-
     board_get_element(Board, [X0, Y0], Element),
     change_player(Player, Opponent),
@@ -75,37 +78,39 @@ valid_drop_move(Board, Player, [[X0, Y0], [X1, Y1]]) :-
     board_get_adjacent(Board, [X0, Y0], ListOfAdjacent),
     member([' ', [X1, Y1]], ListOfAdjacent).
 
+%value(+GameState, +Player, -Value)
 
-
-% value(+GameState, +Player, -Value)
-
+%value(+GameState, +Player, -Value)
 choose_free_move(GameState, Level, Move) :-
     (Level == 1 ->
         choose_free_move_level1(GameState, Move);
         choose_free_move_level2(GameState, Move)
     ).
 
+%choose_free_move_level1(+GameState, -Move)
 choose_free_move_level1(GameState, Move) :-
     GameState = [Board, _, FreeMoves, _],
     length(FreeMoves, NumberOfFreeMoves),
     random(0, NumberOfFreeMoves, Index),
     nth0(Index, FreeMoves, Move).
 
-% choose_free_move_level2(GameState, Move).
+%choose_free_move_level2(GameState, Move).
 
+%choose_drop_move(+GameState, -Move)
 choose_drop_move(GameState, Level, Move) :-
     (Level == 1 ->
         choose_drop_move_level1(GameState, Move);
         choose_drop_move_level2(GameState, Move)
     ).
 
+%choose_drop_move_level1(+GameState, -Move)
 choose_drop_move_level1(GameState, Move) :-
     GameState = [Board, _, _, DropMoves],
     length(DropMoves, NumberOfDropMoves),
     random(0, NumberOfDropMoves, Index),
     nth0(Index, DropMoves, Move).
 
-% choose_drop_move_level2(GameState, Move).
+%choose_drop_move_level2(GameState, Move).
 
 
 % test_game(N) :-

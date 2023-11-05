@@ -1,45 +1,41 @@
 
-% clear/0
-% Clears the screen, for better user experience
+%clear/0
+/ Clears the screen, for better user experience /
 clear :- write('\e[2J').
 
-% menu_header_format(+Header)
-% prints the header of a menu, for example MAIN MENU or INSTRUCTIONS
+%menu_header_format(+Header)
+/ Prints the header of a menu, for example MAIN MENU or INSTRUCTIONS /
 menu_header_format(Header):-
     format('~n~`*t ~p ~`*t~57|~n', [Header]).
 
-% menu_empty_line/0
-% Prints an empty line inside a menu 
+%menu_empty_line/0
+/Prints an empty line inside a menu /
 menu_empty_line :-
     format('*~t*~57|~n', []).
 
-
-% menu_sec_header_format(+Label1, +Label2)
-% Prints an header with 2 columns for a secundary table 
-% Used for readability
+%menu_sec_header_format(+Label1, +Label2)
+/ Prints an header with 2 columns for a secundary table 
+  Used for readability /
 menu_sec_header_format(Label1, Label2):-
-    format('*~t~a~t~15+~t~a~t~40+~t*~57|~n',
-            [Label1, Label2]).
+    format('*~t~a~t~15+~t~a~t~40+~t*~57|~n', [Label1, Label2]).
 
-
-% menu_option_format(+Option, +Details)
-% prints the option number and associated details in a menu-like format 
+%menu_option_format(+Option, +Details)
+/ prints the option number and associated details in a menu-like format /
 menu_option_format(Option, Details):-
-    format('*~t~d~t~15|~t~a~t~40+~t*~57|~n',
-          [Option, Details]).
+    format('*~t~d~t~15|~t~a~t~40+~t*~57|~n', [Option, Details]).
 
-% menu_text_format(+Text)
-% Prints a center-aligned text inside a menu 
+%menu_text_format(+Text)
+/ Prints a center-aligned text inside a menu /
 menu_text_format(Text):-
-  format('*~t~a~t*~57|~n', [Text]).
+    format('*~t~a~t*~57|~n', [Text]).
 
-% menu_bottom_line/0
-% Prints a row of '*' to end the menu 
+%menu_bottom_line/0
+/ Prints a row of '*' to end the menu /
 menu_bottom_line :-
     format('~`*t~57|~n', []).
 
-% menu/0
-% Displays the menu
+%menu/0
+/ Displays the menu /
 menu:-
     menu_header_format('MAIN MENU'),
     menu_empty_line,
@@ -56,26 +52,28 @@ menu:-
     % read_number(0, 4, Number),
     menu_option(Number).
 
+%menu_option(+Option)
+/ Executes the option selected by the user /
 
-
-% menu_option(+Option)
-% Executes the option selected by the user
-
-% Exit Menu
+/ Exit Menu /
 menu_option(0):-
     write('Thank You For Playing').
 
-% Player vs Player
+/ Player vs Player /
 menu_option(1):-
     write('Player vs Player'),
-    clear, pp_menu(1).
+    clear, 
+    pp_menu(1).
 
+/ Player vs Computer /
 menu_option(2):-
     write('Player vs Computer').
 
+/ Computer vs Computer /
 menu_option(3):-
     write('Computer vs Computer').
 
+/ Game Instructions /
 menu_option(4):-
     clear,
     menu_header_format('INSTRUCTIONS'),
@@ -115,9 +113,7 @@ menu_option(4):-
     menu_bottom_line,
     menu.
 
-
-
-% Starting Game
+%Starting Game
 pp_menu(1):-
     initial(1,GameState),
     assert(player(1,'Human')),

@@ -1,11 +1,14 @@
+%game_start(+N)
 game_start(N) :-
     initial_state(N, GameState),
     game_loop(GameState).
 
+%game_start_ai(+N, +Level, +AIPlayer)
 game_start_ai(N, Level, AIPlayer) :-
     initial_state(N, GameState),
     game_loop_ai(GameState, Level, AIPlayer).
 
+%game_loop(+GameState)
 game_loop(GameState) :-
     clear,
     game_display(GameState),
@@ -15,6 +18,7 @@ game_loop(GameState) :-
         game_loop(NewGameState)
     ).
 
+%game_loop_ai(+GameState, +Level, +AIPlayer)
 game_loop_ai(GameState, Level, AIPlayer) :-
     clear,
     game_display(GameState),
@@ -25,7 +29,7 @@ game_loop_ai(GameState, Level, AIPlayer) :-
         game_loop_ai(NewGameState, Level, AIPlayer)
     ).
 
-% game_display(+GameState)
+%game_display(+GameState)
 game_display(GameState) :-
     GameState = [Board, Player, FreeMove, DropMoves],
     display_board(Board),
@@ -36,7 +40,7 @@ game_display(GameState) :-
     % write(DropMoves), nl.
 
 
-% game_step(+GameState, -NewGameState)
+%game_step(+GameState, -NewGameState)
 game_step(GameState, NewGameState) :-
     GameState = [_, Player, _, DropMoves],
 
@@ -52,6 +56,7 @@ game_step(GameState, NewGameState) :-
     valid_drop_moves([NewBoard, NewPlayer, [], []], NewDropMoves),
     NewGameState = [NewBoard, NewPlayer, NewFreeMoves, NewDropMoves].
 
+%game_step_ai(+GameState, +Level, +AIPlayer, -NewGameState)
 game_step_ai(GameState, Level, AIPlayer, NewGameState) :-
     GameState = [Board, Player, _, DropMoves],
     (Player \== AIPlayer ->
@@ -79,11 +84,12 @@ game_step_ai(GameState, Level, AIPlayer, NewGameState) :-
         NewGameState = [NewBoard, NewPlayer, NewFreeMoves, NewDropMoves]
     ).
 
+%game_over(+GameState)
 game_over(GameState) :-
     GameState = [_, _, FreeMoves, DropMoves],
     FreeMoves == [], DropMoves == [].
 
-% game_winner(+GameState, -Winner).
+%game_winner(+GameState, -Winner).
 game_winner(GameState, Winner) :-
     GameState = [Board, _, _, _],
     game_display(GameState),
@@ -101,7 +107,7 @@ game_winner(GameState, Winner) :-
     ).
     
 
-% game_free_move(+GameState, -NewBoard)
+%game_free_move(+GameState, -NewBoard)
 game_free_move(GameState, NewBoard) :-
     GameState = [Board, _, FreeMoves, _],
     (( FreeMoves \== [] ) ->
@@ -113,7 +119,7 @@ game_free_move(GameState, NewBoard) :-
         NewBoard = Board
     ).
 
-% game_drop_move(+GameState, -NewBoard)
+%game_drop_move(+GameState, -NewBoard)
 game_drop_move(GameState, NewBoard) :-
     GameState = [Board, _, _, DropMoves],
     (( DropMoves \== [] ) -> 
