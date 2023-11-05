@@ -79,7 +79,6 @@ valid_drop_move(Board, Player, [[X0, Y0], [X1, Y1]]) :-
 
 % value(+GameState, +Player, -Value)
 
-
 choose_free_move(GameState, Level, Move) :-
     (Level == 1 ->
         choose_free_move_level1(GameState, Move);
@@ -92,7 +91,7 @@ choose_free_move_level1(GameState, Move) :-
     random(0, NumberOfFreeMoves, Index),
     nth0(Index, FreeMoves, Move).
 
-choose_free_move_level2(GameState, Move).
+% choose_free_move_level2(GameState, Move).
 
 choose_drop_move(GameState, Level, Move) :-
     (Level == 1 ->
@@ -106,7 +105,7 @@ choose_drop_move_level1(GameState, Move) :-
     random(0, NumberOfDropMoves, Index),
     nth0(Index, DropMoves, Move).
 
-choose_drop_move_level2(GameState, Move).
+% choose_drop_move_level2(GameState, Move).
 
 
 % test_game(N) :-

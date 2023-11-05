@@ -1,5 +1,5 @@
 read_free_move(FreeMove) :-
-    write('Enter your move (e.g., A1): '),
+    write('Enter Free move (e.g., A1): '),
     (
         read_str(String), parse_free_move(String, FreeMove) ->
         true, !;
@@ -8,7 +8,7 @@ read_free_move(FreeMove) :-
 
 % Predicate to read a move from the terminal and parse it
 read_drop_move(DropMove) :-
-    write('Enter your move (e.g., A1-B2): '),
+    write('Enter Drop move (e.g., A1-B2): '),
     (
         read_str(String), parse_drop_move(String, DropMove) ->
         true, !;
