@@ -2,7 +2,7 @@
 
 **Group Dropper_3:**
 - Alexandre Guimarães Gomes Correia, up202007042
-- Diogo Alexandre da Silva Santos, upXXXXXXXXX
+- Diogo Alexandre da Silva Santos, up202009291
 
 
 ## Installation and Execution
@@ -171,6 +171,7 @@ This algorithm is executed for all possible positions on the board, creating a l
 
 
 ### Game State Evaluation
+
 ### Computer Plays
 
 ## Conclusions
