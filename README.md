@@ -73,12 +73,17 @@ GameState = [
 
 
 ### Game State Visualization
-
+#### Game
 The game state is visualized can be visualized by the predicate game_display/1. This predicate receives a game state and prints the board with the corresponding pieces and the valid moves for the current player.
 
 ![](game_display.png "Game Display")
 
 To display the game state is used a predicate called display_board/1 that receives a board and prints it on the terminal. This predicate prints the first row with the references letters of the board, then it prints the actual board row by row with the the references numbers of the left side of the board. This prints are made using only *write/1* and *put_code/1* predicates.
+
+#### Menu
+The game menu is displayed by the *menu/0* predicate. This predicate prints the menu options and reads user input. Users have four options: playing against another player, playing against the computer having the option the choose its AI level, watching a computer vs. computer game with the choosen AI levels for each, and the last option to exit the game. It is recursively called until the user chooses the exit option.
+
+![](menu_display.png "Game Display")
 
 
 ### Move Validation and Execution
